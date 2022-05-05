@@ -19,13 +19,17 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:crypto/crypto.dart';
 
 class Homepage extends StatefulWidget {
-  const Homepage({Key? key}) : super(key: key);
+  final idd;
+  const Homepage({@required this.idd});
 
   @override
-  State<Homepage> createState() => _HomepageState();
+  State<Homepage> createState() => _HomepageState(Id: idd);
 }
 
 class _HomepageState extends State<Homepage> {
+  var Id;
+  _HomepageState({@required this.Id});
+
   @override
   void initState() {
     super.initState();
@@ -59,13 +63,12 @@ class _HomepageState extends State<Homepage> {
     final imageFile = File(image.path);
     final uploadTask = await FirebaseStorage.instance
         .ref()
-        .child(
-            'user_photo/${FirebaseAuth.instance.currentUser!.uid}_${DateTime.now().toString()}')
+        .child('user_photo/${Id}_${DateTime.now().toString()}')
         .putFile(imageFile);
     final imageURL = await uploadTask.ref.getDownloadURL();
     FirebaseFirestore.instance
         .collection('USERS')
-        .doc('${FirebaseAuth.instance.currentUser!.uid}')
+        .doc('${Id}')
         .collection('message')
         .doc()
         .set({
@@ -84,7 +87,7 @@ class _HomepageState extends State<Homepage> {
   Widget build(BuildContext context) {
     Query message = FirebaseFirestore.instance
         .collection('USERS')
-        .doc('${FirebaseAuth.instance.currentUser!.uid}')
+        .doc('${Id}')
         .collection('message')
         .orderBy('time', descending: true);
 
@@ -219,8 +222,7 @@ class _HomepageState extends State<Homepage> {
                             if (x.data == false) {
                               FirebaseFirestore.instance
                                   .collection('USERS')
-                                  .doc(
-                                      '${FirebaseAuth.instance.currentUser!.uid}')
+                                  .doc('${Id}')
                                   .collection('message')
                                   .doc()
                                   .set({

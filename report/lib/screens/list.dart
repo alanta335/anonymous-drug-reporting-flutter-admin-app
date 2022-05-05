@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:report/screens/homescreen.dart';
 
 import 'signup.dart';
 
@@ -40,9 +41,17 @@ class _ListOfUserState extends State<ListOfUser> {
             //physics: ,
             children: snapshot.data!.docs.map((DocumentSnapshot document) {
               print(document.id);
-              return Card(
-                child: ListTile(
-                  title: Text('${document.id.substring(1, 4)}'),
+              return GestureDetector(
+                onTap: () {
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (ctx) => Homepage(idd: document.id)));
+                },
+                child: Card(
+                  child: ListTile(
+                    title: Text('${document.id}'),
+                  ),
                 ),
               );
             }).toList(),

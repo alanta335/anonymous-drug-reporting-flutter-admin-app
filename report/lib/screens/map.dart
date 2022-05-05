@@ -142,7 +142,7 @@ class _MapState extends State<Map> {
                 _googleMapController = controller;
               },
               markers: markers.toSet(),
-              onLongPress: _addMarker,
+              // onLongPress: _addMarker,
               circles: circles,
               onTap: (coordinates) {
                 _googleMapController
@@ -150,12 +150,12 @@ class _MapState extends State<Map> {
               },
             ),
           ),
-          ElevatedButton(
-            child: Text("Select"),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          )
+          // ElevatedButton(
+          //   child: Text("Select"),
+          //   onPressed: () {
+          //     Navigator.pop(context);
+          //   },
+          // )
         ],
       ),
       floatingActionButton: FloatingActionButton(
