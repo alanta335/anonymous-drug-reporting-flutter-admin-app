@@ -7,6 +7,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:dio/dio.dart';
 import 'package:report/models/basicJson.dart';
+import 'package:report/screens/expendable_fab.dart';
 
 class Map extends StatefulWidget {
   const Map({Key? key}) : super(key: key);
@@ -101,69 +102,60 @@ class _MapState extends State<Map> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
+      body: SafeArea(
+        child: Stack(
           children: [
-            Text("Map"),
-            Expanded(
-              child: ElevatedButton(
-                  onPressed: () {
-                    reportLocationGet();
-                  },
-                  child: Text("see report area")),
+            Container(
+              height: double.infinity,
+              width: double.infinity,
+              child: GoogleMap(
+                myLocationButtonEnabled: false,
+                zoomControlsEnabled: false,
+                initialCameraPosition: _initialCameraPosition,
+                onMapCreated: (controller) {
+                  _googleMapController = controller;
+                },
+                markers: markers.toSet(),
+                onLongPress: _addMarker,
+                circles: circles,
+                onTap: (coordinates) {
+                  _googleMapController
+                      .animateCamera(CameraUpdate.newLatLng(coordinates));
+                },
+              ),
             ),
-            Expanded(
-              child: ElevatedButton(
-                  onPressed: () async {
-                    var json = jsonEncode({"list": ls});
-                    //print(json);
-                    Response x = await dio.post(
-                        "https://reportapitest34.azurewebsites.net/data",
-                        data: json);
-                    //print(x.data);
-                    json_loc locc = json_loc.fromJson(x.data);
-                    print("Raduisss = ${locc.rad.toString()}");
-                    addMarkerOfReportedArea(
-                        "MAX", locc.lat!, locc.long!, locc.rad!);
-                  },
-                  child: Text("see cluster")),
-            )
           ],
         ),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: GoogleMap(
-              myLocationButtonEnabled: false,
-              zoomControlsEnabled: false,
-              initialCameraPosition: _initialCameraPosition,
-              onMapCreated: (controller) {
-                _googleMapController = controller;
-              },
-              markers: markers.toSet(),
-              // onLongPress: _addMarker,
-              circles: circles,
-              onTap: (coordinates) {
-                _googleMapController
-                    .animateCamera(CameraUpdate.newLatLng(coordinates));
-              },
-            ),
-          ),
-          // ElevatedButton(
-          //   child: Text("Select"),
-          //   onPressed: () {
-          //     Navigator.pop(context);
-          //   },
-          // )
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _googleMapController.animateCamera(
-          CameraUpdate.newCameraPosition(_initialCameraPosition),
+      floatingActionButton: ExpendableFab(distance: 100, children: [
+        ActionButton(
+            icon: Icon(Icons.center_focus_strong_rounded,
+                color: Colors.yellowAccent),
+            onPressed: () {
+              _googleMapController.animateCamera(
+                  CameraUpdate.newCameraPosition(_initialCameraPosition));
+            }),
+        ActionButton(
+          icon: const Icon(Icons.location_on, color: Colors.yellowAccent),
+          onPressed: () {
+            reportLocationGet();
+          },
         ),
-        child: const Icon(Icons.center_focus_strong),
-      ),
+        ActionButton(
+          icon: const Icon(Icons.circle, color: Colors.yellowAccent),
+          onPressed: () async {
+            var json = jsonEncode({"list": ls});
+            //print(json);
+            Response x = await dio.post(
+                "https://reportapitest34.azurewebsites.net/data",
+                data: json);
+            //print(x.data);
+            json_loc locc = json_loc.fromJson(x.data);
+            print("Raduisss = ${locc.rad.toString()}");
+            addMarkerOfReportedArea("MAX", locc.lat!, locc.long!, locc.rad!);
+          },
+        ),
+      ]),
     );
   }
 

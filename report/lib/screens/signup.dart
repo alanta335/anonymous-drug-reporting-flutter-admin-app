@@ -26,9 +26,18 @@ class _SignupState extends State<Signup> {
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
     return Scaffold(
-      body: Column(
+        body: Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+          image: DecorationImage(
+        image: AssetImage("asset/icon2.png"),
+        fit: BoxFit.cover,
+      )),
+      child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          Image.asset("icon/icon.png", height: 160, width: 160),
+          SizedBox(height: 160),
           GestureDetector(
             onTap: () async {
               await GoogleSignInProvider().googleLogin();
@@ -54,18 +63,23 @@ class _SignupState extends State<Signup> {
             child: Container(
               height: 50,
               decoration: BoxDecoration(
-                color: Colors.amber,
+                color: Colors.yellowAccent,
                 borderRadius: BorderRadius.circular(50),
               ),
               width: width * 0.87,
               child: Padding(
-                padding: const EdgeInsets.all(5.0),
+                padding: const EdgeInsets.all(10.0),
                 child: Row(
-                  children: [
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const [
                     Text(
-                      'Sign up with Google if admin',
+                      'Sign up with Google ',
+                      textAlign: TextAlign.center,
                       style: TextStyle(
-                          fontFamily: 'Poppins', color: Colors.grey.shade700),
+                          fontWeight: FontWeight.bold,
+                          fontStyle: FontStyle.italic,
+                          fontFamily: 'Poppins',
+                          color: Colors.black),
                     )
                   ],
                 ),
@@ -74,6 +88,6 @@ class _SignupState extends State<Signup> {
           ),
         ],
       ),
-    );
+    ));
   }
 }

@@ -32,29 +32,53 @@ class _ListOfUserState extends State<ListOfUser> {
 
         return Scaffold(
           appBar: AppBar(
-            title: Text('user'),
+            backgroundColor: Colors.yellowAccent,
+            title: const Text(
+              'Client List',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontStyle: FontStyle.italic,
+                  fontFamily: 'Poppins',
+                  color: Colors.black),
+            ),
           ),
-          body: ListView(
-            addAutomaticKeepAlives: false,
-            cacheExtent: 300,
-            reverse: false,
-            //physics: ,
-            children: snapshot.data!.docs.map((DocumentSnapshot document) {
-              print(document.id);
-              return GestureDetector(
-                onTap: () {
-                  Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (ctx) => Homepage(idd: document.id)));
-                },
-                child: Card(
-                  child: ListTile(
-                    title: Text('${document.id}'),
+          body: Container(
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage("asset/icon2.png"),
+                fit: BoxFit.cover,
+              ),
+            ),
+            child: ListView(
+              addAutomaticKeepAlives: false,
+              cacheExtent: 300,
+              reverse: false,
+              //physics: ,
+              children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                print(document.id);
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (ctx) => Homepage(idd: document.id)));
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15)),
+                      color: Colors.grey[400],
+                      child: ListTile(
+                        title: Text('${document.id}'),
+                      ),
+                    ),
                   ),
-                ),
-              );
-            }).toList(),
+                );
+              }).toList(),
+            ),
           ),
         );
       },

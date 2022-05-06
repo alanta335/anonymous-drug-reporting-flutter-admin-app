@@ -90,7 +90,10 @@ class _HomepageState extends State<Homepage> {
         .doc('${Id}')
         .collection('message')
         .orderBy('time', descending: true);
-
+    var bs = ElevatedButton.styleFrom(
+        padding: EdgeInsets.all(15),
+        primary: Colors.white,
+        shape: CircleBorder());
     return StreamBuilder<QuerySnapshot>(
       stream: message.snapshots(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -107,136 +110,128 @@ class _HomepageState extends State<Homepage> {
           );
         }
         return Scaffold(
-          appBar: AppBar(
-            title: Row(
-              children: const [
-                Text('Reports'),
-                // ElevatedButton(
-                //   onPressed: () {
-                //     FirebaseFirestore.instance
-                //         .collection('USERS')
-                //         .doc('${FirebaseAuth.instance.currentUser!.uid}')
-                //         .collection('message')
-                //         .doc()
-                //         .set({
-                //       'text': "lat- $lat and long- $long",
-                //       'priority': 0,
-                //       'type': "sender",
-                //       'time': DateTime.now().toString()
-                //     });
-                //     FirebaseFirestore.instance.collection('R_AREA').doc().set({
-                //       'priority': 0,
-                //       'lat': lat,
-                //       'long': long,
-                //       'type': "location",
-                //       'time': DateTime.now().toString()
-                //     });
-                //   },
-                //   child: Text('report location'),
-                // ),
-              ],
-            ),
-          ),
           body: SafeArea(
-            child: Column(
+            child: Stack(
               children: [
-                Expanded(
-                  child: ListView(
-                    addAutomaticKeepAlives: true,
-                    cacheExtent: 300,
-                    reverse: true,
-                    children:
-                        snapshot.data!.docs.map((DocumentSnapshot document) {
-                      return Container(
-                        alignment: Alignment.bottomCenter,
-                        padding: EdgeInsets.only(
-                            left: 14, right: 14, top: 10, bottom: 10),
-                        child: Align(
-                          alignment:
-                              (document.get('type').toString() == "sender" ||
-                                      document.get('type').toString() == "image"
-                                  ? Alignment.topRight
-                                  : Alignment.topLeft),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              color: getcolor(document.get('priority')),
-                            ),
-                            padding: EdgeInsets.all(16),
-                            child: (document.get('type').toString() == "image")
-                                ? Image.network(
-                                    document.get('text').toString(),
-                                  )
-                                : Text(
-                                    document.get('text'),
-                                    style: TextStyle(fontSize: 15),
+                Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                      image: DecorationImage(
+                    image: AssetImage("asset/icon2.png"),
+                    fit: BoxFit.cover,
+                  )),
+                  child: Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: ListView(
+                            addAutomaticKeepAlives: true,
+                            cacheExtent: 300,
+                            reverse: true,
+                            children: snapshot.data!.docs
+                                .map((DocumentSnapshot document) {
+                              return Container(
+                                alignment: Alignment.bottomCenter,
+                                padding: EdgeInsets.only(
+                                    left: 14, right: 14, top: 10, bottom: 10),
+                                child: Align(
+                                  alignment: (document.get('type').toString() ==
+                                              "sender" ||
+                                          document.get('type').toString() ==
+                                              "image"
+                                      ? Alignment.topRight
+                                      : Alignment.topLeft),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(20),
+                                      color: getcolor(document.get('priority')),
+                                    ),
+                                    padding: EdgeInsets.all(16),
+                                    child: (document.get('type').toString() ==
+                                            "image")
+                                        ? Image.network(
+                                            document.get('text').toString(),
+                                          )
+                                        : Text(
+                                            document.get('text'),
+                                            style: TextStyle(fontSize: 15),
+                                          ),
                                   ),
+                                ),
+                              );
+                            }).toList(),
                           ),
                         ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(9.0),
-                        child: TextField(
+                        TextField(
                           controller: messageController,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(50)),
+                            fillColor: Colors.white,
+                            filled: true,
                             hintText: 'type here',
                             labelText: 'Message',
-                            border: OutlineInputBorder(),
                           ),
                           keyboardType: TextInputType.multiline,
                         ),
-                      ),
+                        SizedBox(height: 15),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: ElevatedButton(
+                                style: bs,
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (ctx) => const Map()));
+                                },
+                                child: const Icon(Icons.location_on,
+                                    color: Colors.black),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: ElevatedButton(
+                                style: bs,
+                                onPressed: () async {
+                                  var sx = jsonEncode(
+                                      {"st": messageController.text});
+                                  Response x = await dio.post(
+                                      "https://reportapitest34.azurewebsites.net/spam",
+                                      data: sx);
+                                  print(x.data);
+                                  if (x.data == false) {
+                                    FirebaseFirestore.instance
+                                        .collection('USERS')
+                                        .doc('$Id')
+                                        .set({});
+
+                                    FirebaseFirestore.instance
+                                        .collection('USERS')
+                                        .doc('$Id')
+                                        .collection('message')
+                                        .doc()
+                                        .set({
+                                      'text': messageController.text,
+                                      'type': "receiver",
+                                      'priority': 0,
+                                      'time': DateTime.now().toString()
+                                    });
+                                    messageController.text = "";
+                                  }
+                                },
+                                child: Icon(Icons.send, color: Colors.black),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(context,
-                              MaterialPageRoute(builder: (ctx) => const Map()));
-                        },
-                        child: const Icon(Icons.location_on),
-                      ),
-                    ),
-                    // Padding(
-                    //   padding: const EdgeInsets.all(8.0),
-                    //   child: ElevatedButton(
-                    //     onPressed: () => getImage(),
-                    //     child: const Icon(Icons.camera_alt_rounded),
-                    //   ),
-                    // ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: ElevatedButton(
-                          onPressed: () async {
-                            var sx = jsonEncode({"st": messageController.text});
-                            Response x = await dio.post(
-                                "https://reportapitest34.azurewebsites.net/spam",
-                                data: sx);
-                            print(x.data);
-                            if (x.data == false) {
-                              FirebaseFirestore.instance
-                                  .collection('USERS')
-                                  .doc('${Id}')
-                                  .collection('message')
-                                  .doc()
-                                  .set({
-                                'text': messageController.text,
-                                'type': "receiver",
-                                'priority': 0,
-                                'time': DateTime.now().toString()
-                              });
-                              messageController.text = "";
-                            }
-                          },
-                          child: Text('Send')),
-                    ),
-                  ],
+                  ),
                 ),
               ],
             ),
